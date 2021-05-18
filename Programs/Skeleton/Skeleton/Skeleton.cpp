@@ -31,6 +31,13 @@
 // Tudomasul veszem, hogy a forrasmegjeloles kotelmenek megsertese eseten a hazifeladatra adhato pontokat
 // negativ elojellel szamoljak el es ezzel parhuzamosan eljaras is indul velem szemben.
 //=============================================================================================
+
+
+/*
+* A program nem követi az OOP elveket, ugyanis ezt külön kiadták a beadandóba hogy ezzel ne foglalkozzunk, mivel nagyon megbonyolítaná a dolgokat és nem férnénk bele a határidõbe
+* A program nincsen megfelelõen kommentelve, mivel nem lehetet kommentelve beadni, kivéve, ha a komment forrásmegjelölés, ezért csak a számomra fejlesztés közben fontoss részeket kommenteltem.
+*/
+
 #include "framework.h"
 
 // vertex shader in GLSL: It is a Raw string (C++11) since it contains new line characters
@@ -75,6 +82,7 @@ const char* const fragmentSource = R"(
 
 
 
+
 GPUProgram gpuProgram; // vertex and fragment shaders
 unsigned int vao;	// virtual world on the GPU
 unsigned int vao1;
@@ -84,23 +92,27 @@ unsigned int vbo;
 unsigned int vbo1;
 unsigned int vbo2[3];
 
+//3 dimenziós hiperbolikus vektort leképez egy 2 dimenziós eukledészi koordinátára
 vec2 ConvertToVec2(vec3 a) {
 	return vec2(a.x / a.z, a.y / a.z);
 }
 
+//2 dimenziós eukledészi vektort leképez egy 3 dimenziós hiperbolikus koordinátára
 vec3 ConvertToVec3(vec2 a) {
 	float divider;
+
 	if ((a.x * a.x + a.y * a.y) >= 1) {
 		divider = sqrtf(0.01);
 	}
 	else {
 		divider = sqrtf(1 - a.x * a.x - a.y * a.y);
 	}
+
 	return vec3(a.x / divider, a.y / divider, 1 / divider);
 }
 
-
-bool TwoSegmentsIntersects(vec2 a_1, vec2 a_2, vec2 b_1, vec2 b_2) {//vizsgálja hogy két szakasz metszi-e egymást
+//vizsgálja hogy két szakasz metszi-e egymást, true-val visszatér ha igen.
+bool TwoSegmentsIntersects(vec2 a_1, vec2 a_2, vec2 b_1, vec2 b_2) {
 	
 	/*
 	* elv:
@@ -140,8 +152,8 @@ bool TwoSegmentsIntersects(vec2 a_1, vec2 a_2, vec2 b_1, vec2 b_2) {//vizsgálja 
 	//A pont ahol metszik egymást legyen P(X,Y)
 	//Akkor metszik egymást, ha A1*x + b1=A2*x + b2
 	float X = (b2 - b1) / (A1 - A2);
-
-	//
+	
+	
 	float greatest_min = min_a > min_b ? min_a : min_b;
 	float lowest_max = max_a < max_b ? max_a : max_b;
 
@@ -151,7 +163,8 @@ bool TwoSegmentsIntersects(vec2 a_1, vec2 a_2, vec2 b_1, vec2 b_2) {//vizsgálja 
 		return true;
 }
 
-int Intersects(int arr[122], vec2 vert[50]) {//visszaadja hogy hány metszõ él van
+//visszaadja hogy hány metszõ él van egy gráfban
+int Intersects(int arr[122], vec2 vert[50]) {
 	int sum = 0;
 	for (int i = 0; i < 120; i += 2) {
 		if (i > 1) {
@@ -465,48 +478,7 @@ float lorentz(vec3 a, vec3 b) {
 	return a.x * b.x + a.y * b.y - a.z * b.z;
 }
 
-void Moving(vec2 MousePos) {
-	vec3 Origo(0, 0, 1);
-	vec3 Q = ConvertToVec3(MousePos);//A vektor amivel tolunk
 
-	float dist = acosh(-lorentz(Origo, Q));//Origo és a Q távolsága a hiperbolikus síkon
-	
-	vec3 v;//irányvektor
-
-	if (dist == 0)//nem osztunk 0-val
-		return;
-
-	v = (Q - (Origo * cosh(dist))) / sinh(dist);//irányvektor a hiperbolikus síkon
-
-	//2 pont amire tükrözünk úgy hogy dist(m1, m2)=dist(Origo, Q)/2<--ezért van dist/4 és 3*dist/4 mivel igy 2/4 lesz a távolságuk
-	vec3 m1 = (Origo * cosh(dist / 4)) + (v * sinh(dist / 4));//m1 az OriogoQ vektoron 
-	vec3 m2 = (Origo * cosh(3*dist / 4)) + (v * sinh(3*dist / 4));//m2 az OriogoQ vektoron
-
-	
-	//az összes pontunkat tükrözzük az m1-re aztán az m2-re
-	for (int i = 0; i < 50; i++) {
-		vec3 t = graph->vertices3D[i];//csak azért hogy kevesebbet kelljen írni a késõbiekben
-
-		float dist1 = acosh(-lorentz(m1, t));//m1 t távolság
-		if (dist1 != dist1)//Ha dist2 nan
-			return;
-		
-		vec3 v1 = (m1 - (t * cosh(dist1))) / sinh(dist1);//irányvektor t pontban
-		vec3 t1 = (t * cosh(2 * dist1)) + (v1 * sinh(dist1 * 2));//t tükrözve m1-re
-
-		float dist2 = acosh(-lorentz(m2, t1));//t1 m2 távolság
-		if (dist2 != dist2)//ha dist2 nan
-			return;
-
-		vec3 v2 = (m2 - (t1 * cosh(dist2))) / sinh(dist2);//irányvektor t1 pontban
-		vec3 t2 = (t1 * cosh(2 * dist2)) + (v2 * sinh(dist2 * 2));//t1 tükrözve m2-re
-
-		graph->vertices3D[i] = t2;
-		graph->vertices[i] = ConvertToVec2(graph->vertices3D[i]);
-	}
-
-	graph->InitNeighbors();
-}
 
 void ShiftOneNode(int i, vec2 MousePos) {
 	vec3 Origo(0, 0, 1);
@@ -542,6 +514,15 @@ void ShiftOneNode(int i, vec2 MousePos) {
 
 	graph->vertices3D[i] = t2;
 	graph->vertices[i] = ConvertToVec2(graph->vertices3D[i]);
+}
+
+void Moving(vec2 MousePos) {
+	//az összes pontunkat tükrözzük az m1-re aztán az m2-re
+	for (int i = 0; i < 50; i++) {
+		ShiftOneNode(i, MousePos);
+	}
+
+	graph->InitNeighbors();
 }
 
 vec2 Direction(vec2 a, vec2 b) {
