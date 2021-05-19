@@ -19,7 +19,7 @@
 // NYILATKOZAT
 // ---------------------------------------------------------------------------------------------
 // Nev    : Bakó Pál Ignác
-// Neptun : I31TDE
+// Neptun : 
 // ---------------------------------------------------------------------------------------------
 // ezennel kijelentem, hogy a feladatot magam keszitettem, es ha barmilyen segitseget igenybe vettem vagy
 // mas szellemi termeket felhasznaltam, akkor a forrast es az atvett reszt kommentekben egyertelmuen jeloltem.
@@ -34,6 +34,7 @@
 
 
 /*
+* A program kirajzol egy 50 pontú gráfot a hiperbolikus síkra 5%-os telítettséggel. Space lenyomására újra rajzolja, de már heurisztikusan elrendezve majd egy erõvezérelt gráfrendezõ algoritmussal továbbrendezi a gráfot. Az egérrel lehet mozgatni a hiperbolikus síkon.
 * A program nem követi az OOP elveket, ugyanis ezt külön kiadták a beadandóba hogy ezzel ne foglalkozzunk, mivel nagyon megbonyolítaná a dolgokat és nem férnénk bele a határidõbe
 * A program nincsen megfelelõen kommentelve, mivel nem lehetet kommentelve beadni, kivéve, ha a komment forrásmegjelölés, ezért csak a számomra fejlesztés közben fontoss részeket kommenteltem.
 */
